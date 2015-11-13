@@ -2,10 +2,8 @@ package hex.tree;
 
 import hex.*;
 import water.*;
-import water.codegen.CodeGenerator;
-import water.codegen.CodeGeneratorPipeline;
 import water.exceptions.H2OIllegalArgumentException;
-import water.exceptions.JCodeSB;
+import water.codegen.*;
 import water.util.*;
 
 import java.lang.reflect.Field;

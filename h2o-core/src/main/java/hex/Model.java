@@ -19,7 +19,9 @@ import water.*;
 import water.api.StreamWriter;
 import water.codegen.CodeGenerator;
 import water.codegen.CodeGeneratorPipeline;
-import water.exceptions.JCodeSB;
+import water.codegen.JCodeGen;
+import water.codegen.JCodeSB;
+import water.codegen.SBPrintStream;
 import water.fvec.*;
 import water.util.*;
 
@@ -970,9 +972,7 @@ public abstract class Model<M extends Model<M,P,O>, P extends Model.Parameters, 
       Log.warn("Java model export does not support offset_column.");
     }
     if (isGeneratingPreview && toJavaCheckTooBig()) {
-      sb.nl();
-      sb.nl();
-      sb.nl();
+      sb.nl(3);
       sb.p("  NOTE:  Java model is too large to preview, please download as shown above.").nl();
       sb.nl();
       return sb;

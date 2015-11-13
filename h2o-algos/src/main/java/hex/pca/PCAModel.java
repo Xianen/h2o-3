@@ -9,11 +9,9 @@ import water.Key;
 import water.MRTask;
 import water.codegen.CodeGenerator;
 import water.codegen.CodeGeneratorPipeline;
-import water.exceptions.JCodeSB;
+import water.codegen.*;
 import water.fvec.Chunk;
 import water.fvec.Frame;
-import water.util.JCodeGen;
-import water.util.SBPrintStream;
 import water.util.TwoDimTable;
 
 public class PCAModel extends Model<PCAModel,PCAModel.PCAParameters,PCAModel.PCAOutput> {
