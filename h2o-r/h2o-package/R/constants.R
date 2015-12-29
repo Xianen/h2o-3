@@ -5,146 +5,30 @@
 #'
 #' Additionally, environment variables for the H2O package are named here.
 
+#' Endpoint Version
+.h2o.__REST_API_VERSION <- 3L
 
 #'
 #' The H2O Package Environment
 #'
 .pkg.env <- new.env()
+.pkg.env$key.map <- list()   # global list of versioned keys
 assign("SERVER",        NULL,  .pkg.env)
 assign("IS_LOGGING",    FALSE, .pkg.env)
 assign("LOG_FILE_NAME", NULL,  .pkg.env)
 
 #'
-#' Map of binary operators to their "AST" operator value.
+#' Map of operations known to H2O
 #'
-.op.map <- c("%*%" = "x",
-             '>'  = 'g',
-             '>=' = 'G',
-             '<'  = 'l',
-             '<=' = 'L',
-             '==' = 'n',
-             '!=' = 'N',
-             '%%' = 'mod',
-             '**' = '^',
-             '!'  = '_',
-             '|'  = '|',
-             '&'  = '&',
-             "&&" = "&&",
-             '+'  = '+',
-             '-'  = '-',
-             '*'  = '*',
-             '/'  = '/',
-             '^'  = '^',
-             't'  = 't', 
-             "%/%"="intDiv")
+.h2o.primitives = c( 
+  "*", "+", "/", "-", "^", "%%", "%/%",
+  "==", "!=", "<", ">", "<=", ">=",
+  "cos", "sin", "acos", "cosh", "tan", "tanh", "exp", "log", "sqrt", 
+  "abs", "ceiling", "floor", 
+  "mean", "sd", "sum", "prod", "all", "any", "min", "max", 
+  "is.factor", "nrow", "ncol", "length" 
+)
 
-.binary_op.map <- c("%*%" = "x",
-                    '>'  = 'g',
-                    '>=' = 'G',
-                    '<'  = 'l',
-                    '<=' = 'L',
-                    '==' = 'n',
-                    '!=' = 'N',
-                    '%%' = '%',
-                    '**' = '^',
-                    '|'  = '|',
-                    '&'  = '&',
-                    "&&" = "&&",
-                    '+'  = '+',
-                    '-'  = '-',
-                    '*'  = '*',
-                    '/'  = '/',
-                    '^'  = '^',
-                    "%/%"="%/%")
-
-#'
-#' Map of unary operators to their "AST" operator value.
-#'
-.unary_op.map <- c('!' = '_',
-                   '$' = '[',
-                   '[' = '[',
-                   't' = 't')
-
-.slice.map <- c('$' = '$', '[' = '[')
-
-#'
-#' A list of prefix operations. 1:1 map for now, may add more to the map as needed.
-#'
-.prefix.map <-  c("abs"  = "abs",
-                  "sign" = "sign",
-                  "sqrt" = "sqrt",
-                  "ceiling" = "ceiling",
-                  "floor" = "floor",
-                  "trunc" = "trunc",
-                  "cummax" = "cummax",
-                  "cummin" = "cummin",
-                  "cumprod" = "cumprod",
-                  "cumsum" = "cumsum",
-                  "log" = "log",
-                  "log10" = "log10",
-                  "log2" = "log2",
-                  "log1p" = "log1p",
-                  "acos" = "acos",
-                  "acosh" = "acosh",
-                  "asin" = "asin",
-                  "asinh" = "asinh",
-                  "atan" = "atan",
-                  "atanh" = "atanh",
-                  "exp" = "exp",
-                  "expm1" = "expm1",
-                  "cos" = "cos",
-                  "cosh" = "cosh",
-                  "cospi" = "cospi",
-                  "sin" = "sin",
-                  "sinh" = "sinh",
-                  "sinpi" = "sinpi",
-                  "tan" = "tan",
-                  "tanh" = "tanh",
-                  "tanpi" = "tanpi",
-                  "gamma" = "gamma",
-                  "lgamma" = "lgamma",
-                  "digamma" = "digamma",
-                  "trigamma" = "trigamma",
-                  "round" = "round",
-                  "signif" = "signif",
-                  "max" = "max",
-                  "nrow"="nrow",
-                  "ncol"="ncol",
-                  "min" = "min",
-                  "range" = "range",
-                  "prod" = "prod",
-                  "sum" = "sum",
-                  "any" = "any",
-                  "all" = "all",
-                  "is.na" = "is.na",
-                  "trunc" = "trunc",
-                  "is.factor" = "is.factor")
-
-#'
-#' The n-ary args operations
-#'
-.nary_op.map <- c("round" = "round",
-                  "signif" = "signif",
-                  "max" = "max",
-                  "min" = "min",
-                  "range" = "range",
-                  "prod" = "prod",
-                  "sum" = "sum",
-                  "any" = "any",
-                  "all" = "all",
-                  "mean"  = "mean",
-                  "median" = "median",
-                  "var"   = "var",
-                  "log" = "log",
-                  "sd"    = "sd",
-                  "scale" = "scale",
-                  "tail" = "tail",
-                  "head" = "head",
-                  "match" = "match",
-                  "cut" = "cut",
-                  "table" = "table",
-                  "xorsum" = "xorsum",
-                  "trunc" = "trunc")
 
 .type.map <- rbind(data.frame(type = "logical",   scalar = TRUE,  row.names = "boolean",      stringsAsFactors = FALSE),
                    data.frame(type = "logical",   scalar = FALSE, row.names = "boolean[]",    stringsAsFactors = FALSE),
@@ -165,9 +49,6 @@ assign("LOG_FILE_NAME", NULL,  .pkg.env)
                    data.frame(type = "character", scalar = TRUE,  row.names = "string",       stringsAsFactors = FALSE),
                    data.frame(type = "character", scalar = FALSE, row.names = "string[]",     stringsAsFactors = FALSE),
                    data.frame(type = "character", scalar = TRUE,  row.names = "VecSpecifier", stringsAsFactors = FALSE))
-
-#' Endpoint Version
-.h2o.__REST_API_VERSION <- 3L
 
 #' Administrative Endpoints
 .h2o.__JOBS           <- "Jobs"          # Jobs/$90w3r52hfej_JOB_KEY_12389471jsdfs
@@ -193,7 +74,7 @@ assign("LOG_FILE_NAME", NULL,  .pkg.env)
 .h2o.__COL_SUMMARY <- function(key, col) URLencode(paste(.h2o.__FRAMES, key, "columns", col, "summary", sep = "/"))
 .h2o.__COL_DOMAIN  <- function(key, col) URLencode(paste(.h2o.__FRAMES, key, "columns", col, "domain", sep = "/"))
 
-#' Frame Manipulation
+#' H2OFrame Manipulation
 .h2o.__CREATE_FRAME   <- "CreateFrame"
 
 .h2o.__GLMMakeModel <- "MakeGLMModel"
@@ -206,12 +87,7 @@ assign("LOG_FILE_NAME", NULL,  .pkg.env)
 
 #' Export Files Endpoint Generator
 .h2o.__EXPORT_FILES <- function(frame,path,force) {
-  tmp_data <- !.is.eval(frame)
-  if( tmp_data ) {
-    key  <- h2o.getId(frame)
-    .h2o.eval.frame(ast=frame@mutable$ast, frame_id=key)
-  }
-  paste0("Frames/",h2o.getId(frame),"/export/",path,"/overwrite/",force)
+  paste0("Frames/", h2o.getId(frame), "/export/",path,"/overwrite/",force)
 }
 
 #' Model Endpoint
@@ -230,4 +106,25 @@ assign("LOG_FILE_NAME", NULL,  .pkg.env)
   else {
     paste0("ModelMetrics/models/",model,"/frames/",data)
   }
+}
+
+# Export/Import Model Endpoints
+.h2o.__SAVE_MODEL <- function(model) paste0("Models.bin/", model)
+.h2o.__LOAD_MODEL <- "Models.bin/"
+
+# Grid search 
+.h2o.__GRID <- function(algo) paste0("Grid/", algo)
+.h2o.__GRIDS <- function(grid_id, sort_by, sort_order) {
+    if (missing(grid_id)) {
+        "/Grids"
+    } else {
+        url <- paste0("Grids/", grid_id)
+        if (! missing(sort_by)) {
+            url <- paste0(url, "?sort_by=", sort_by)
+            if (! missing(sort_order)) {
+                url <- paste0(url, "&sort_order=", sort_order)
+            }
+        }
+         url
+    }
 }
