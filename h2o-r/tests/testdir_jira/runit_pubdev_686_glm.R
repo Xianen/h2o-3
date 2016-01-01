@@ -10,7 +10,7 @@ source("../../scripts/h2o-r-test-setup.R")
 test <- function() {
 
   print("Read allyears2k_headers.zip into R.")
-  data.hex <-  h2o.importFile(locate("smalldata/airlines/allyears2k_headers.zip"), destination_frame="airlines.data")
+  data.hex <-  h2o.importFile(h2oTest.locate("smalldata/airlines/allyears2k_headers.zip"), destination_frame="airlines.data")
 
   s = h2o.runif(data.hex)
   train = data.hex[s <= 0.8,]
@@ -27,4 +27,4 @@ test <- function() {
   
 }
 
-doTest("GLM PUBDEV-686", test)
+h2oTest.doTest("GLM PUBDEV-686", test)
