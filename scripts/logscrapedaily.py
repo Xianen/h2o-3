@@ -120,6 +120,7 @@ def find_node_name(each_line,temp_func_list):
 def find_git_hash_branch(each_line,temp_func_list):
     global g_git_hash_branch
     global g_failed_test_info_dict
+    global g_failure_occurred
 
     if g_git_hash_branch in each_line:
         temp_strings = each_line.split()
@@ -206,6 +207,7 @@ def update_test_dict(each_line):
     global g_failed_jobs
     global g_failed_job_durations
     global g_failed_job_java_messages
+    global g_failure_occurred
 
     temp_strings = each_line.split()
 
@@ -214,6 +216,7 @@ def update_test_dict(each_line):
         g_failed_jobs.append(test_name)
         g_failed_job_java_messages.append([]) # insert empty java messages for now
         g_failed_job_java_message_types.append([])
+        g_failure_occurred = True
 
     return True
 
@@ -289,6 +292,7 @@ def grab_java_message():
     global g_ok_java_messages
     global g_java_general_bad_messages
     global g_java_general_bad_message_types
+    global g_failure_occurred
 
     java_messages = []
     java_message_types = []
@@ -322,6 +326,7 @@ def grab_java_message():
 
                         g_java_message_dict["messages"].append(tempMessage)
                         g_java_message_dict["message_types"].append(temp_strings[5])
+                        g_failure_occurred = True
 
                         if (len(g_current_testname) == 0):    # java message not associated with any test name
                             g_java_general_bad_messages.append(tempMessage)
@@ -332,7 +337,10 @@ def grab_java_message():
                             
 
 
-
+'''
+Function associate_test_with_java is written to associate bad java messages
+with failed or sucessful jobs.
+'''
 def associate_test_with_java(testname, java_message,java_message_type):
     global g_failed_jobs  # record job names of failed jobs
     global g_failed_job_java_messages # record failed job java message
