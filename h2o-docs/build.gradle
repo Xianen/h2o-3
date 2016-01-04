@@ -22,5 +22,5 @@ task cleanGenerateRESTAPIDocs(type: Delete) {
     delete "$restGenPath/results"
 }
 
-build.dependsOn runGenerateRESTAPIDocs
+// build.dependsOn runGenerateRESTAPIDocs
 clean.dependsOn cleanGenerateRESTAPIDocs

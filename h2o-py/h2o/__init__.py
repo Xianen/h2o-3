@@ -403,7 +403,7 @@ Here is a brief example of H2O on Hadoop:
   predictFrame = model.predict(testFrame)
   model.model_performance(testFrame)
 """
-__version__ = "SUBST_PROJECT_VERSION"
+__version__ = "3.0.0.99999"
 from h2o import *
 from model import *
 from demo import *
