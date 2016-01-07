@@ -33,6 +33,8 @@ g_weekdays = 'Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday'
 
 g_months = 'January, Feburary, March, May, April, May, June, July, August, September, October, November, December'
 
+g_failure_occurred = False  # denote when failure actually occurred
+
 g_failed_jobs = []  # record job names of failed jobs
 g_failed_job_java_message_types = []
 g_failed_job_java_messages = []  # record failed job java message
@@ -59,6 +61,7 @@ g_java_start_text = 'STARTING TEST:'    # test being started in java
 
 g_ok_java_messages = [] # store java bad messages that we can ignore
 g_java_message_dict = {"messages":[],"message_types":[]}
+g_build_failed_message = 'BUILD FAILED'.lower()
 
 '''
 The sole purpose of this function is to enable us to be able to call
@@ -117,6 +120,7 @@ def find_node_name(each_line,temp_func_list):
 def find_git_hash_branch(each_line,temp_func_list):
     global g_git_hash_branch
     global g_failed_test_info_dict
+    global g_failure_occurred
 
     if g_git_hash_branch in each_line:
         temp_strings = each_line.split()
@@ -131,10 +135,11 @@ def find_git_hash_branch(each_line,temp_func_list):
 def find_build_timeout(each_line,temp_func_list):
     global g_build_timeout
     global g_failed_test_info_dict
+    global g_failure_occurred
 
     if g_build_timeout in each_line:
         g_failed_test_info_dict["8.build_timeout"] = 'Yes'
-
+        g_failure_occurred = True
         return False
     else:
         return True
@@ -143,10 +148,17 @@ def find_build_failure(each_line,temp_func_list):
     global g_build_success
     global g_build_success_tests
     global g_failed_test_info_dict
+    global g_failure_occurred
 
-    if ((g_build_success[0] in each_line) or (g_build_success[1] in each_line) or (g_build_success_tests[0] in each_line) or (g_build_success_tests[1] in each_line)):
-        g_failed_test_info_dict["7.build_failure"] = 'No'
+    # if ((g_build_success[0] in each_line) or (g_build_success[1] in each_line) or (g_build_success_tests[0] in each_line) or (g_build_success_tests[1] in each_line)):
+    #     g_failed_test_info_dict["7.build_failure"] = 'No'
+    #     temp_func_list.remove(find_build_failure)
+
+    if g_build_failed_message in each_line.lower():
+        g_failure_occurred = True
+        g_failed_test_info_dict["7.build_failure"] = 'Yes'
         temp_func_list.remove(find_build_failure)
+        return False
 
     return True
 
@@ -195,6 +207,7 @@ def update_test_dict(each_line):
     global g_failed_jobs
     global g_failed_job_durations
     global g_failed_job_java_messages
+    global g_failure_occurred
 
     temp_strings = each_line.split()
 
@@ -203,6 +216,7 @@ def update_test_dict(each_line):
         g_failed_jobs.append(test_name)
         g_failed_job_java_messages.append([]) # insert empty java messages for now
         g_failed_job_java_message_types.append([])
+        g_failure_occurred = True
 
     return True
 
@@ -278,6 +292,7 @@ def grab_java_message():
     global g_ok_java_messages
     global g_java_general_bad_messages
     global g_java_general_bad_message_types
+    global g_failure_occurred
 
     java_messages = []
     java_message_types = []
@@ -311,6 +326,7 @@ def grab_java_message():
 
                         g_java_message_dict["messages"].append(tempMessage)
                         g_java_message_dict["message_types"].append(temp_strings[5])
+                        g_failure_occurred = True
 
                         if (len(g_current_testname) == 0):    # java message not associated with any test name
                             g_java_general_bad_messages.append(tempMessage)
@@ -321,7 +337,10 @@ def grab_java_message():
                             
 
 
-
+'''
+Function associate_test_with_java is written to associate bad java messages
+with failed or sucessful jobs.
+'''
 def associate_test_with_java(testname, java_message,java_message_type):
     global g_failed_jobs  # record job names of failed jobs
     global g_failed_job_java_messages # record failed job java message
@@ -359,8 +378,8 @@ def extract_java_messages():
     global g_success_job_java_messages # record of successful jobs bad java messages
     global g_success_job_java_message_types
    
-    global g_java_general_bad_messages
-    global g_java_general_bad_message_types
+    global g_java_general_bad_messages  # store java error messages when no job is running
+    global g_java_general_bad_message_types # store java error message types when no job is running.
 
 
         
@@ -402,26 +421,25 @@ def save_dict():
     global g_failed_test_info_dict
 
     allKeys = sorted(g_failed_test_info_dict.keys())
-    if ("failed_tests_info" in allKeys) or ("success_tests_info" in allKeys) or ("9.general_bad_java_messages" in allKeys):
-        with open(g_output_pickle_filename,'wb') as test_file:
-            pickle.dump(g_failed_test_info_dict,test_file)
-            test_file.close()
+    with open(g_output_pickle_filename,'wb') as test_file:
+        pickle.dump(g_failed_test_info_dict,test_file)
+        test_file.close()
 
     # write out the failure report as text into a text file
-        with open(g_output_filename,'w') as text_file:
-            for keyName in sorted(g_failed_test_info_dict.keys()):
-                val = g_failed_test_info_dict[keyName]
-                if isinstance(val,list):    # writing one of the job lists
-                    if (len(val) == 3):     # it is a message for a test
-                        write_test_java_message(keyName,val,text_file)
-                    elif (len(val) == 2):                   # it is a general bad java message
-                        write_java_message(keyName,val,text_file)
-                else:
-                    text_file.write(keyName+": ")
-                    text_file.write(val)
-                    text_file.write('\n\n')
+    with open(g_output_filename,'w') as text_file:
+        for keyName in sorted(g_failed_test_info_dict.keys()):
+            val = g_failed_test_info_dict[keyName]
+            if isinstance(val,list):    # writing one of the job lists
+                if (len(val) == 3):     # it is a message for a test
+                    write_test_java_message(keyName,val,text_file)
+                elif (len(val) == 2):                   # it is a general bad java message
+                    write_java_message(keyName,val,text_file)
+            else:
+                text_file.write(keyName+": ")
+                text_file.write(val)
+                text_file.write('\n\n')
 
-            text_file.close()
+        text_file.close()
 
 def write_test_java_message(key,val,text_file):
     global g_failed_jobs
@@ -476,24 +494,31 @@ def main(argv):
     """
     global g_script_name
     global g_test_root_dir
+    global g_temp_filename
+    global g_output_filename
+    global g_output_pickle_filename
+    global g_failure_occurred
 
-    if len(argv) < 2:
-        print "Must provide url where console text is stored in.\n"
+    if len(argv) < 4:
+        print "Must provide url where console text is stored in, directory where log file is and filename where log file is stored.\n"
         sys.exit(1)
     else:   # we may be in business
         g_script_name = os.path.basename(argv[0])   # get name of script being run.
         resource_url = argv[1]
+        g_test_root_dir = argv[2]
+        g_temp_filename = os.path.join(g_test_root_dir,'tempText')
+        log_filename = argv[3]+'.log'
+        log_pickle_filename = argv[3]+'.pickle.log'
+        g_output_filename = os.path.join(g_test_root_dir,log_filename)
+        g_output_pickle_filename = os.path.join(g_test_root_dir,log_pickle_filename)
 
         get_console_out(resource_url)   # save remote console output in local directory
         extract_job_build_url(resource_url) # extract the job name of build id for identification purposes
         extract_test_results(resource_url)      # grab the console text and stored the failed tests.
         extract_java_messages()     # grab dangerous java messages that we found for the various tests
-        save_dict()                 # save the dict structure in a pickle file and a text file as well
+        if g_failure_occurred:
+            save_dict() # save the dict structure in a pickle file and a text file when failure is detected
 
-
-
-
-        
 
 if __name__ == "__main__":
     main(sys.argv)
