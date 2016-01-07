@@ -531,6 +531,8 @@ def main(argv):
         g_output_filename = os.path.join(g_test_root_dir,log_filename)
         g_output_pickle_filename = os.path.join(g_test_root_dir,log_pickle_filename)
 
+        print "log file name complete with path is ",g_output_filename
+
         extract_test_results(resource_url)      # grab the console text and stored the failed tests.
         extract_java_messages()     # grab dangerous java messages that we found for the various tests
         if (len(g_failed_jobs) > 0) or (g_failed_test_info_dict["7.build_failure"]=='Yes'):
