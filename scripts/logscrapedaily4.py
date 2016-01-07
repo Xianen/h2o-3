@@ -29,6 +29,7 @@ g_build_timeout = "Build timed out"             # phrase when tests run too long
 g_build_success = ["Finished: SUCCESS",'BUILD SUCCESSFUL']           # sentence at the end that guarantee build success
 g_build_success_tests = ['generate_rest_api_docs.py','generate_java_bindings.py'] # two functions that are usually performed after build success
 g_build_id_text = 'Build id is'
+g_view_name = ''
 
 g_temp_filename = os.path.join(g_test_root_dir,'tempText')
 
@@ -202,7 +203,7 @@ def find_build_id(each_line,temp_func_list):
         g_failed_test_info_dict["2.build_id"] = endStr.strip()
 
         temp_func_list.remove(find_build_id)
-        g_jenkins_url = os.path.join('http://',g_jenkins_url,'job',g_failed_test_info_dict["1.jobName"],g_failed_test_info_dict["2.build_id"],'artifact')
+        g_jenkins_url = os.path.join('http://',g_jenkins_url,'view',g_view_name,'job',g_failed_test_info_dict["1.jobName"],g_failed_test_info_dict["2.build_id"],'artifact')
 
     return True
 
@@ -280,6 +281,7 @@ def get_console_out(url_string):
 def extract_job_build_url(url_string):
     global g_failed_test_info_dict
     global g_jenkins_url
+    global g_view_name
     
     tempString = url_string.strip('/').split('/')
 
@@ -290,6 +292,7 @@ def extract_job_build_url(url_string):
     g_failed_test_info_dict["1.jobName"] = tempString[6]
         
     g_jenkins_url = tempString[2]
+    g_view_name = tempString[4]
     
 
 def grab_java_message():
