@@ -539,7 +539,7 @@ def main(argv):
 
         extract_test_results(resource_url)      # grab the console text and stored the failed tests.
         extract_java_messages()     # grab dangerous java messages that we found for the various tests
-        if (len(g_failed_jobs) > 0) or (g_failed_test_info_dict["7.build_failure"]=='Yes'):
+        if ((len(g_failed_jobs) > 0) or (g_failed_test_info_dict["7.build_failure"]=='Yes')):
             g_failure_occurred = True
 
         if g_failure_occurred:
