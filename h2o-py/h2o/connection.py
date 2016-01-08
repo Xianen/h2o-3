@@ -347,9 +347,9 @@ class H2OConnection(object):
   @staticmethod
   def _tmp_file(type):
     if sys.platform == "win32":
-      usr = re.sub("[^A-Za-z0-9]", "_", os.getenv("USERNAME"))
+      usr = re.sub("[^A-Za-z0-9]", "_", os.getenv("USERNAME", "UnknownUser"))
     else:
-      usr = re.sub("[^A-Za-z0-9]", "_", os.getenv("USER"))
+      usr = re.sub("[^A-Za-z0-9]", "_", os.getenv("USER", "UnknownUser"))
 
     if type == "stdout":
       path = os.path.join(tempfile.mkdtemp(), "h2o_{}_started_from_python.out".format(usr))
