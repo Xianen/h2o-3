@@ -197,6 +197,9 @@ def find_build_id(each_line,temp_func_list):
     global g_java_filenames
     global g_build_id_text
     global g_jenkins_url
+    global g_output_filename
+    global g_output_pickle_filename
+
 
     if g_build_id_text in each_line:
         startStr,found,endStr = each_line.partition(g_build_id_text)
@@ -204,6 +207,7 @@ def find_build_id(each_line,temp_func_list):
 
         temp_func_list.remove(find_build_id)
         g_jenkins_url = os.path.join('http://',g_jenkins_url,'view',g_view_name,'job',g_failed_test_info_dict["1.jobName"],g_failed_test_info_dict["2.build_id"],'artifact')
+
 
     return True
 
@@ -433,6 +437,10 @@ def save_dict():
     global g_output_pickle_filename
     global g_failed_test_info_dict
 
+
+    g_output_filename = g_output_filename+'_build_'+g_failed_test_info_dict["2.build_id"]+'.log'
+    g_output_pickle_filename = g_output_pickle_filename+'_build_'+g_failed_test_info_dict["2.build_id"]+'.pickle'
+
     allKeys = sorted(g_failed_test_info_dict.keys())
     with open(g_output_pickle_filename,'wb') as test_file:
         pickle.dump(g_failed_test_info_dict,test_file)
@@ -523,16 +531,16 @@ def main(argv):
         g_temp_filename = os.path.join(g_test_root_dir,'tempText')
 
         if len(argv) == 3:
-            log_filename = argv[2]+'.log'
-            log_pickle_filename = argv[2]+'.pickle'
+            log_filename = argv[2]
+            log_pickle_filename = argv[2]
 
 
         get_console_out(resource_url)   # save remote console output in local directory
         extract_job_build_url(resource_url) # extract the job name of build id for identification purposes
 
         if (len(argv) == 2):    # user did not provide filename for log files, we will have to extract the name for log file as jenkin job name later
-            log_filename = g_failed_test_info_dict["1.jobName"]+".log"
-            log_pickle_filename = g_failed_test_info_dict["1.jobName"]+".pickle"
+            log_filename = g_failed_test_info_dict["1.jobName"]
+            log_pickle_filename = g_failed_test_info_dict["1.jobName"]
 
         g_output_filename = os.path.join(g_test_root_dir,log_filename)
         g_output_pickle_filename = os.path.join(g_test_root_dir,log_pickle_filename)
